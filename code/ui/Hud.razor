@@ -1,0 +1,43 @@
+@using Sandbox;
+@using System;
+@using Sandbox.UI;
+
+@namespace Increlemental
+@inherits RootPanel
+@attribute [StyleSheet]
+
+<root>
+    <ChatBox/>
+    <VoiceList/>
+
+    <div class="pointer-visible" />
+
+    <div class="header">
+        <label>Coins : @(GetCoins())</label>
+    </div>
+</root>
+
+@code
+{
+    public string GetCoins()
+    {
+        var player = Game.LocalPawn as Pawn;
+        if (player == null) return "Oui";
+
+        if (player.Resources == null) return "BUZZ SOUND";
+
+        return player.Resources.Coins.ToString();
+    }
+
+    protected override int BuildHash()
+    {
+        var coins = GetCoins();
+        return coins.GetHashCode();
+    }
+
+    public override void Tick()
+    {
+        var devCam = Game.LocalClient.Components.Get<DevCamera>();
+        SetClass("camera-movement", Input.UsingController || Input.Down("attack2") || devCam is not null);
+    }
+}

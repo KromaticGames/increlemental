@@ -6,16 +6,20 @@ using System.Threading.Tasks;
 
 namespace Increlemental.Entities;
 
-public class PawnCollector : ModelEntity
+public partial class PawnCollector : ModelEntity
 {
-    public float Radius { get; set; } = 25f;
+    [Net]
+    public float Radius { get; set; } = 50f;
+    private float OldRadius;
+
     public AreaUI WorldUI { get; set; }
 
+    [Net]
     public Pawn Pawn { get; set; }
-
 
     public override void Spawn() {
         base.Spawn();
+        OldRadius = Radius;
 
         Name = "Pawn Collector";
         SetupPhysicsFromCylinder( PhysicsMotionType.Static, new Capsule(Vector3.Zero, Vector3.Up * 60f, Radius));
@@ -25,19 +29,36 @@ public class PawnCollector : ModelEntity
         Tags.Add("pawncollector");
     }
 
+    [GameEvent.Tick]
+    public void Tick()
+    {
+        if (OldRadius != Radius)
+            SetupPhysicsFromCylinder( PhysicsMotionType.Static, new Capsule(Vector3.Zero, Vector3.Up * 60f, Radius));
+        
+        OldRadius = Radius;
+    }
+
     public override void ClientSpawn()
     {
         base.ClientSpawn();
 
-        float areaRadius = Radius * 10 + 200;
+        float AreaSize = 1000 * Radius/25;
         WorldUI = new()
         {
             Transform = Transform,
-            Position = Position + Vector3.Up * 5.5f,
+            Position = Position + Vector3.Up * .1f,
             Rotation = Rotation.FromPitch(90f),
-            PanelBounds = new Rect(-areaRadius / 2, -areaRadius / 2, areaRadius, areaRadius),
-            WorldScale = Scale * 1.3f,
-            
+            WorldScale = Scale, //* Radius/25;
+            PanelBounds = new Rect(-AreaSize/2, -AreaSize/2, AreaSize, AreaSize)
         };
+    }
+
+    [GameEvent.Client.Frame]
+    public void FrameTick()
+    {
+        WorldUI.Position = Position + Vector3.Up * .1f;
+
+        float AreaSize = 1000 * Radius/25;
+        WorldUI.PanelBounds = new Rect(-AreaSize/2, -AreaSize/2, AreaSize, AreaSize);
     }
 }

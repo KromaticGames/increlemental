@@ -43,21 +43,7 @@ public partial class Generator : ModelEntity
         Area.SetParent(this);
     }
 
-    public override void ClientSpawn()
-    {
-        base.ClientSpawn();
 
-        float areaRadius = Radius * 10f + 200f;
-
-        WorldUI = new()
-        {
-            Transform = Transform,
-            Position = Position + Vector3.Up * 5f,
-            Rotation = Rotation.FromPitch(90f),
-            PanelBounds = new Rect(-areaRadius / 2, -areaRadius / 2, areaRadius, areaRadius),
-            WorldScale = Scale * 1.3f,
-        };
-    }
 
     [GameEvent.Tick.Server]
     public void ServerTick()
@@ -80,7 +66,6 @@ public partial class Generator : ModelEntity
     }
 
     protected override void OnDestroy() {
-        WorldUI?.Delete();
         base.OnDestroy();
     }
 }

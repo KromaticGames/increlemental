@@ -7,6 +7,7 @@ tools_asset_info.bin
 *.los
 
 # User-specific files
+.vscode/
 *.rsuser
 *.suo
 *.user
